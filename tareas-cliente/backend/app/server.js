@@ -23,9 +23,15 @@ class Server {
             }
         });
 
-        this.routes();
+        //this.routes();
         
     }
+
+    async start() {
+        await this.serverGraphQL.start();
+        this.applyGraphQLMiddleware();
+        this.listen();
+    }  
 
     middlewares() {
 
@@ -35,16 +41,27 @@ class Server {
 
     }
 
-    routes(){
-        this.app.use(this.usuariosPath , require('../routes/usuarioRoutes'));
-        this.app.use(this.usuariosPath , require('../routes/tareaRoutes'));
+    applyGraphQLMiddleware() {
+        this.app.use(this.graphQLPath , express.json(), expressMiddleware(this.serverGraphQL));
     }
 
-    listen() {
+    /*routes(){
+        this.app.use(this.usuariosPath , require('../routes/usuarioRoutes'));
+        this.app.use(this.usuariosPath , require('../routes/tareaRoutes'));
+    }*/
+
+    /*listen() {
         this.app.listen(process.env.PORT, () => {
             console.log(`Servidor escuchando en: ${process.env.PORT}`);
         })
+    }*/
+
+    listen() {
+        this.app.listen(process.env.PORT, () => {
+            console.log(`Servidor escuchando en: ${process.env.URL}:${process.env.PORT}${this.graphQLPath}`);
+        })
     }
+
 }
 
 module.exports = Server;

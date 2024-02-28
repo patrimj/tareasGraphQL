@@ -3,7 +3,7 @@ const Server = require('./server');
 
 //Lanzamos el servidor.
 const server = new Server();
-server.listen();
+//server.listen();
 
 server.start().catch(console.error);
 

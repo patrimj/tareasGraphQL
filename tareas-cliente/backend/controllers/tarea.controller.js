@@ -1,246 +1,223 @@
-const { response, request } = require('express');
-const ConexionTarea = require('../database/tarea.conexion');
-
-//------------------------------ RUTAS PROGRAMADOR ------------------------------
+const models = require('../models/index.js');
+const Sequelize = require('sequelize');
+const Op = Sequelize.Op;
 
 //LISTAR TAREAS LIBRES
-const listarTareasLibres = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-
-    conx.listarTareasLibres()
-        .then(msg => {
-            console.log('Listado correcto!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No hay registros');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
+const listarTareasLibres = async () => {
+    try {
+        const libres = await models.Tarea_Asignada.findAll({
+            where: { id_usuario: null },
+            include: [{
+                model: models.Tarea,
+                as: 'tarea',
+            }]
         });
+        return libres;
+    } catch (error) {
+        throw new Error('Error al obtener las tareas libres!', error);
+    }
 }
 
 //ASIGNAR TAREA
-const asignarTarea = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-    const id = req.params.id;
-    const id_usuario = req.idToken;
-
-    conx.asignarTarea(id, id_usuario)
-        .then(msg => {
-            console.log('Tarea asignada correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No se ha podido asignar la tarea');
-            res.status(200).json({ 'msg': 'No se ha podido asignar la tarea' });
+const asignarTarea = async (id_tarea, id_usuario) => {
+    try {
+        const tareaAsignada = await models.Tarea_Asignada.update({
+            id_usuario: id_usuario
+        }, {
+            where: {
+                id_tarea: id_tarea
+            }
         });
+
+        if (tareaAsignada[0] !== 0) {
+            const tareaActualizada = await models.Tarea_Asignada.findOne({
+                where: { id_tarea: id_tarea },
+                include: [{
+                    model: models.Tarea,
+                    as: 'tarea'
+                }]
+            });
+            return tareaActualizada;
+        }
+    }
+    catch (error) {
+        throw new Error('Error al asignar la tarea!', error);
+    }
 }
 
-//QUITARSE TAREA QUE TENGA MI ID ES DECIR QUE ESTÉ ASIGNADA A MI
-const desasignarTarea = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-    const id = req.params.id;
-    const id_usuario = req.idToken;
-
-    conx.desasignarTarea(id, id_usuario)
-        .then(msg => {
-            console.log('Tarea desasignada correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No se ha podido desasignar la tarea');
-            res.status(200).json({ 'msg': 'No se ha podido desasignar la tarea' });
+const desasignarTarea = async (id_tarea, id_usuario) => {
+    try {
+        const tareaDesasignada = await models.Tarea_Asignada.update({
+            id_usuario: null
+        }, {
+            where: {
+                id_tarea: id_tarea,
+                id_usuario: id_usuario
+            }
         });
+
+        if (tareaDesasignada[0] !== 0) {
+            const tarea = await models.Tarea_Asignada.findOne({
+                where: {
+                    id_tarea: id_tarea
+                }
+            });
+            return { id_tarea: tarea.id_tarea };
+        }
+    }
+    catch (error) {
+        throw new Error('Error al desasignar la tarea!', error);
+    }
 }
+
 
 //LISTAR TAREAS ASIGNADAS
-const listarTareasAsignadas = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-    const id_usuario = req.idToken;
-
-    conx.listarTareasAsignadas(id_usuario)
-        .then(msg => {
-            console.log('Tareas asignadas!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No hay registros');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
-            console.log(id_usuario);
+const listarTareasAsignadas = async (id_usuario) => {
+    try {
+        const asignadas = await models.Tarea_Asignada.findAll({
+            where: { id_usuario: id_usuario },
+            include: [{
+                model: models.Tarea,
+                as: 'tarea'
+            }]
         });
+        return asignadas;
+    } catch (error) {
+        throw new Error('Error al obtener las tareas asignadas!', error);
+    }
 }
 
 // CONSULTAR TAREA ASIGNADA
-const consultarTareaAsignada = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-    const id = req.params.id;
-    const id_usuario = req.idToken;
-
-    conx.consultarTareaAsignada(id, id_usuario)
-        .then(msg => {
-            console.log('Tarea asignada');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No hay registros');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
+const consultarTareaAsignada = async (id_tarea, id_usuario) => {
+    try {
+        const asignada = await models.Tarea_Asignada.findAll({
+            where: { id_usuario: id_usuario, id_tarea: id_tarea },
+            include: [{
+                model: models.Tarea,
+                as: 'tarea'
+            }]
         });
+        return asignada;
+    } catch (error) {
+        console.error(error);
+        return null;
+    }
 }
 
 //LISTAR TODAS LAS TAREAS
-const listarTareas = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-
-    conx.listarTareas()
-        .then(msg => {
-            console.log('Tareas!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No hay registros');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
-        });
+const listarTareas = async () => {
+    try {
+        const tareas = await models.Tarea.findAll();
+        return tareas;
+    } catch (error) {
+        throw new Error('Error al obtener las tareas!', error);
+    }
 }
 
 //MODIFICAR TAREA 
-const modificarTareaPro = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-    const id = req.params.id;
-
-    conx.modificarTareaPro(id, req.body)
-        .then(msg => {
-            console.log('Tarea modificada correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No se ha podido modificar la tarea');
-            res.status(200).json({ 'msg': 'No se ha podido modificar la tarea' });
+const modificarTareaPro = async (id, body) => {
+    try {
+        const tarea = await models.Tarea.findByPk(id);
+        if (!tarea) {
+            throw new Error('No se encontró la tarea');
+        }
+        await models.Tarea.update(body, {
+            where: {
+                id: id
+            }
         });
+        const tareaActualizada = await models.Tarea.findByPk(id);
+        return tareaActualizada;
+    } catch (error) {
+        throw new Error('Error al modificar la tarea!', error);
+    }
 }
-
-// ------------------------------ RUTAS ADMIN ------------------------------
 
 ///CREAR TAREA
-const crearTarea = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-
-    conx.crearTarea(req.body)
-        .then(msg => {
-            console.log('Tarea creada correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No se ha podido crear la tarea');
-            res.status(200).json({ 'msg': 'No se ha podido crear la tarea' });
-        });
+const crearTarea = async (body) => {
+    try {
+        const nuevaTarea = await models.Tarea.create(body);
+        return nuevaTarea;
+    } catch (error) {
+        throw new Error('Error al crear la tarea!', error);
+    }
 }
 
 //MODIFICAR TAREA 
-const modificarTarea = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-    const id = req.params.id;
-
-    conx.modificarTarea(id, req.body)
-        .then(msg => {
-            console.log('Tarea modificada correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No se ha podido modificar la tarea');
-            res.status(200).json({ 'msg': 'No se ha podido modificar la tarea' });
+const modificarTarea = async (id, body) => {
+    try {
+        const tarea = await models.Tarea.findByPk(id);
+        if (!tarea) {
+            throw new Error('No se encontró la tarea');
+        }
+        await models.Tarea.update(body, {
+            where: {
+                id: id
+            }
         });
+        const tareaActualizada = await models.Tarea.findByPk(id);
+        return tareaActualizada;
+    } catch (error) {
+        throw new Error('Error al modificar la tarea!', error);
+    }
 }
 
 //ELIMINAR TAREA
-const eliminarTarea = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-    const id = req.params.id;
-
-    conx.eliminarTarea(id)
-        .then(msg => {
-            console.log('Tarea eliminada correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No se ha podido eliminar la tarea');
-            res.status(200).json({ 'msg': 'No se ha podido eliminar la tarea' });
+const eliminarTarea = async (id) => {
+    try {
+        const tarea = await models.Tarea.findByPk(id);
+        if (!tarea) {
+            throw new Error('No se encontró la tarea');
+        }
+        await models.Tarea.destroy({
+            where: {
+                id: id
+            }
         });
-}
-
-//ASIGNAR TAREA A USUARIO
-const asignarTareaAUsuario = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-    const id = req.params.id;
-    const id_usuario = req.params.id_usuario;
-
-    conx.asignarTarea(id, id_usuario)
-        .then(msg => {
-            console.log('Tarea asignada correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No se ha podido asignar la tarea');
-            res.status(200).json({ 'msg': 'No se ha podido asignar la tarea' });
-        });
+        return true;
+    } catch (error) {
+        throw new Error('Error al eliminar la tarea!', error);
+    }
 }
 
 // VER TAREAS PROGRAMADOR
-const verTareasProgramador = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-
-    conx.verTareasProgramador(req.params.id_usuario)
-        .then(msg => {
-            console.log('Tareas programador!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No hay registros');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
+const verTareasProgramador = async (id_usuario) => {
+    try {
+        const tareas = await models.Tarea_Asignada.findAll({
+            where: { id_usuario: id_usuario },
+            include: [{
+                model: models.Tarea,
+                as: 'tarea'
+            }]
         });
+        return tareas;
+    } catch (error) {
+        throw new Error('Error al obtener las tareas del programador!', error);
+    }
 }
 
 // VER TODAS LAS TAREAS REALIZADAS 
-const verTareasRealizadas = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-
-    conx.verTareasRealizadas()
-        .then(msg => {
-            console.log('Tareas realizadas!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No hay registros');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
+const verTareasRealizadas = async () => {
+    try {
+        const realizadas = await models.Tarea.findAll({
+            where: { completada: true }
         });
+        return realizadas;
+    } catch (error) {
+        throw new Error('Error al obtener las tareas realizadas!', error);
+    }
 }
 
 // VER TODAS LAS TAREAS PENDIENTES 
-const verTareasPendientes = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-
-    conx.verTareasPendientes()
-        .then(msg => {
-            console.log('Tareas pendientes!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No hay registros');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
+const verTareasPendientes = async () => {
+    try {
+        const pendientes = await models.Tarea.findAll({
+            where: { completada: false }
         });
-}
-
-// VER RANKING DE TAREAS 
-const ranking = (req = request, res = response) => {
-    const conx = new ConexionTarea();
-
-    conx.ranking()
-        .then(msg => {
-            console.log('Ranking!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No hay registros');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
-        });
+        return pendientes;
+    } catch (error) {
+        throw new Error('Error al obtener las tareas pendientes!', error);
+    }
 }
 
 // -------------------------------- EXPORTACIONES -------------------------------- 
@@ -255,10 +232,8 @@ module.exports = {
     crearTarea,
     modificarTarea,
     eliminarTarea,
-    asignarTareaAUsuario,
     verTareasProgramador,
     verTareasRealizadas,
     verTareasPendientes,
-    ranking,
     modificarTareaPro
 }

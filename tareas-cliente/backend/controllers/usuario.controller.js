@@ -1,137 +1,139 @@
 const { response, request } = require('express');
-const ConexionUsuario = require('../database/usuario.conexion');
-const { generarJWT } = require('../helpers/generate_jwt');
 
-//LOGIN SIN TOKEN 
+const models = require('../models/index.js');
 
-/*const login = (req = request, res = response) => {
-    const conx = new ConexionUsuario();
-
-    conx.login(req.body.email, req.body.password)
-        .then(msg => {
-            console.log('Usuario iniciado');
-            res.status(201).json(msg);
-        })
-        .catch(err => {
-            console.log('Fallo en el inicio de sesión');
-            console.log(err);
-            res.status(203).json(err);
-        })
-}*/
-
-//LOGIN CON TOKEN
-const login = (req = request, res = response) => {
-    const conx = new ConexionUsuario();
-
-    conx.login(req.body.email, req.body.password)
-        .then(usu => {
-            if (usu) {
-                console.log('Usuario iniciado' + usu.id);
-                const token = generarJWT(usu.id)
-                console.log(usu)
-                console.log(token);
-                res.status(200).json({usu, token});
-            } else {
-                console.log('No se encontró ningún usuario con ese correo electrónico y contraseña');
-                res.status(400).json({error: 'No se encontró ningún usuario con ese correo electrónico y contraseña'});
+//LOGIN
+const login = async (email, password) => {
+    try {
+        const usuario = models.User.findOne({
+            where: {
+                email: email,
+                password: password
             }
-        })
-        .catch(err => {
-            console.log('Fallo en el inicio de sesión');
-            console.log(err);
-            res.status(203).json(err);
-        })
+        });
+        if (!usuario) {
+            throw new Error('No se encontró el usuario');
+        }
+        return usuario;
+    } catch (error) {
+        throw new Error('Error al obtener el usuario!', error);
+        //return null;
+    }
 }
 
 // REGISTRARSE
-const registro = (req, res = response) => {
-    const conx = new ConexionUsuario();
+const registro = async (body) => {
+    try {
+        const usuarioNuevo = models.User.create(body);
 
-    conx.registro(req.body)
-        .then(msg => {
-            console.log('Registrado correcto!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('Error al registrarse');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
-        });
+        if (!usuarioNuevo) {
+            throw new Error('No se pudo registrar el usuario');
+        }
+
+        return usuarioNuevo;
+    } catch (error) {
+        throw new Error('Error al registrar el usuario!', error);
+        //return null;
+    }
 }
 
 // CAMBIAR PASSWORD
-const cambiarPassword = (req, res = response) => {
-    const conx = new ConexionUsuario();
-
-    conx.cambiarPassword(req.params.email, req.body.password)
-        .then(msg => {
-            console.log('Contraseña modificada correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('No se pudo modificar la contraseña');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
+const cambiarPassword = async (email, password) => {
+    try {
+        const usuario = await models.User.findOne({
+            where: {
+                email: email
+            }
         });
+        if (!usuario) {
+            throw new Error('No se encontró el usuario');
+        }
+        await models.User.update({ password: password }, {
+            where: {
+                email: email
+            }
+        });
+        const usuarioActualizado = await models.User.findOne({
+            where: {
+                email: email
+            }
+        });
+
+        return usuarioActualizado;
+    } catch (error) {
+        throw new Error('Error al cambiar la contraseña!', error);
+        //return null;
+    }
 }
 
-//ALTA USUARIO
-const altaUsuario = (req, res = response) => {
-    const conx = new ConexionUsuario();
+//VER USUARIOS
+const getUsuarios = async () => {
+    try {
+        const usuarios = await models.User.findAll();
+        console.log(usuarios);
+        return usuarios;
+    } catch (error) {
+        throw new Error('Error al obtener los usuarios!', error);
 
-    conx.altaUsuario(req.body)
-        .then(msg => {
-            console.log('usuario dado de alta correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('el usuario no se ha podido dar de alta');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
-        });
+    }
+};
+
+//ALTA USUARIO
+const altaUsuario = async (body) => {
+    try {
+        const usuarioNuevo = await models.User.create(body);
+        if (!usuarioNuevo) {
+            throw new Error('No se pudo dar de alta al usuario');
+        }else{
+            console.log('Usuario dado de alta');
+            return usuarioNuevo;
+        }
+    } catch (error) {
+        throw new Error('Error al dar de alta al usuario!', error);
+
+    }
 }
 
 //BAJA USUARIO
-const bajaUsuario = (req, res = response) => {  
-    const conx = new ConexionUsuario();
-
-    conx.bajaUsuario(req.params.id)
-        .then(msg => {
-            console.log('usuario dado de baja correctamente!');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('el usuario no se ha podido dar de baja');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
+const bajaUsuario = async (id) => {
+    try {
+        const usuario = await models.User.findByPk(id);
+        if (!usuario) {
+            throw new Error('No se encontró el usuario');
+        }
+        await models.User.destroy({
+            where: {
+                id: id
+            }
         });
+        console.log('Usuario eliminado');
+        return true;
+    } catch (error) {
+        throw new Error('Error al eliminar el usuario!', error);
+    }
 }
 
 //MODIFICAR USUARIO
-const modificarUsuario = (req, res = response) => {
-    const conx = new ConexionUsuario();
+const modificarUsuario = async (id, body) => {
+    try {
+        const usuario = await models.User.findByPk(id);
+        console.log(usuario);
 
-    conx.modificarUsuario(req.params.id, req.body)
-        .then(msg => {
-            console.log('usuario modificado correctamente !');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log('el usuario no se ha podido modificar');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
+        if (!usuario) {
+            throw new Error('No se encontró el usuario');
+        }
+        await models.User.update(body, {
+            where: {
+                id: id
+            }
         });
+        const usuarioActualizado = await models.User.findByPk(id);
+        return usuarioActualizado;
+    } catch (error) {
+        throw new Error('Error al modificar el usuario!', error);
+    }
 }
 
-const esAdmin = (req, res = response) => {
-    const conx = new ConexionUsuario();
-
-    conx.esAdmin(req.params.id_usuario)
-        .then(msg => {
-            console.log('los roles del usuario !');
-            res.status(200).json(msg);
-        })
-        .catch(err => {
-            console.log(err)
-            console.log('el usuario no se ha podiod encontrar');
-            res.status(200).json({ 'msg': 'No se han encontrado registros' });
-        });
-}
 
 module.exports = {
     login,
@@ -140,5 +142,5 @@ module.exports = {
     altaUsuario,
     bajaUsuario,
     modificarUsuario,
-    esAdmin
+    getUsuarios
 }
