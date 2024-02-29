@@ -9,37 +9,43 @@
     <title>Cliente GraphQL</title>
 </head>
 
-<body>
+<body class="container py-4">
 
-    <h1>Gestionar Usuarios y tareas</h1>
+    <h1 class="mb-4">Gestionar Usuarios y tareas</h1>
 
-    <h3>Usuarios</h3>
+    <div class="mb-4">
+        <h3>Usuarios</h3>
+        <div class="d-grid gap-2">
+            <button class="btn btn-primary" onclick="registrarUsuario()">Registrarse</button>
+            <button class="btn btn-primary" onclick="loginUsuario()">Iniciar Sesión</button>
+            <button class="btn btn-info" onclick="getUsuarios()">Todos los usuarios</button>
+            <button class="btn btn-success" onclick="altaUsuario()">Alta Usuario</button>
+            <button class="btn btn-warning" onclick="cambiarPassword()">Cambiar contraseña</button>
+            <button class="btn btn-danger" onclick="bajaUsuario()">Baja Usuario</button>
+            <button class="btn btn-warning" onclick="modificarUsuario()">Modificar Usuario</button>
+        </div>
+    </div>
 
-    <button onclick="registrarUsuario()">Registrarse</button>
-    <button onclick="loginUsuario()">Iniciar Sesión</button>
-    <button onclick="getUsuarios()">Todos los usuarios</button>
-    <button onclick="altaUsuario()">Alta Usuario</button>
-    <button onclick="cambiarPassword()">Cambiar contraseña</button>
-    <button onclick="bajaUsuario()">Baja Usuario</button>
-    <button onclick="modificarUsuario()">Modificar Usuario</button>
+    <div class="mb-4">
+        <h3>Tareas</h3>
+        <div class="d-grid gap-2">
+            <button class="btn btn-info" onclick="listarTareasLibres()">Todas las tareas libres</button>
+            <button class="btn btn-success" onclick="asignarTarea()">Asignar tarea a usuario</button>
+            <button class="btn btn-warning" onclick="desasignarTarea()">Desasignar tarea a usuario</button>
+            <button class="btn btn-info" onclick="tareasAsignadas()">Tareas asignadas a usuario</button>
+            <button class="btn btn-info" onclick="consultarTareaAsignada()">Consultar tarea asignada</button>
+            <button class="btn btn-info" onclick="getTareas()">Todas las tareas</button>
+            <button class="btn btn-success" onclick="crearTarea()">Crear tarea</button>
+            <button class="btn btn-warning" onclick="modificarTarea()">Modificar tarea</button>
+            <button class="btn btn-warning" onclick="modificarTareaPro()">Modificar tarea programador</button>
+            <button class="btn btn-danger" onclick="eliminarTarea()">Eliminar tarea</button>
+            <button class="btn btn-info" onclick="tareasProgramador()">Tareas programador</button>
+            <button class="btn btn-info" onclick="tareasRealizadas()">Tareas realizadas</button>
+            <button class="btn btn-info" onclick="tareasPendientes()">Tareas pendientes</button>
+        </div>
+    </div>
 
-    <h3>Tareas</h3>
-
-    <button onclick="listarTareasLibres()">Todas las tareas libres</button>
-    <button onclick="asignarTarea()">Asignar tarea a usuario</button>
-    <button onclick="desasignarTarea()">Desasignar tarea a usuario</button>
-    <button onclick="tareasAsignadas()">Tareas asignadas a usuario</button>
-    <button onclick="consultarTareaAsignada()">Consultar tarea asignada</button>
-    <button onclick="getTareas()">Todas las tareas</button>
-    <button onclick="crearTarea()">Crear tarea</button>
-    <button onclick="modificarTarea()">Modificar tarea</button>
-    <button onclick="modificarTareaPro()">Modificar tarea programador</button>
-    <button onclick="eliminarTarea()">Eliminar tarea</button>
-    <button onclick="tareasProgramador()">Tareas programador</button>
-    <button onclick="tareasRealizadas()">Tareas realizadas</button>
-    <button onclick="tareasPendientes()">Tareas pendientes</button>
-
-    <div id="resultado"></div>
+    <div id="resultado" class="alert alert-info"></div>
 
     <script src="./app.js"></script>
 
