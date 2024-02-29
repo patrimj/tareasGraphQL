@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.2/dist/css/bootstrap.min.css" rel="stylesheet"
+        integrity="sha384-T3c6CoIi6uLrA9TneNEoa7RxnatzjcDSCmG1MXxSR1GAsXEV/Dwwykc2MPK8M2HN" crossorigin="anonymous">
+    <title>Cliente GraphQL</title>
+</head>
+
+<body>
+
+    <h1>Gestionar Usuarios y tareas</h1>
+
+    <h3>Usuarios</h3>
+
+    <button onclick="registrarUsuario()">Registrarse</button>
+    <button onclick="loginUsuario()">Iniciar Sesión</button>
+    <button onclick="getUsuarios()">Todos los usuarios</button>
+    <button onclick="altaUsuario()">Alta Usuario</button>
+    <button onclick="cambiarPassword()">Cambiar contraseña</button>
+    <button onclick="bajaUsuario()">Baja Usuario</button>
+    <button onclick="modificarUsuario()">Modificar Usuario</button>
+
+    <h3>Tareas</h3>
+
+    <button onclick="listarTareasLibres()">Todas las tareas libres</button>
+    <button onclick="asignarTarea()">Asignar tarea a usuario</button>
+    <button onclick="desasignarTarea()">Desasignar tarea a usuario</button>
+    <button onclick="tareasAsignadas()">Tareas asignadas a usuario</button>
+    <button onclick="consultarTareaAsignada()">Consultar tarea asignada</button>
+    <button onclick="getTareas()">Todas las tareas</button>
+    <button onclick="crearTarea()">Crear tarea</button>
+    <button onclick="modificarTarea()">Modificar tarea</button>
+    <button onclick="modificarTareaPro()">Modificar tarea programador</button>
+    <button onclick="eliminarTarea()">Eliminar tarea</button>
+    <button onclick="tareasProgramador()">Tareas programador</button>
+    <button onclick="tareasRealizadas()">Tareas realizadas</button>
+    <button onclick="tareasPendientes()">Tareas pendientes</button>
+
+    <div id="resultado"></div>
+
+    <script src="./app.js"></script>
+
+</body>
+
+</html>
